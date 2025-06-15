@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フードシェアリングアプリ</title>
+    {# ここに共通のCSSなどを読み込む #}
+</head>
+<body>
+
+    <header>
+        <h1><a href="/">フードシェアリングアプリ</a></h1>
+        <nav>
+            {# ここに共通のナビゲーションメニューなどを置く #}
+        </nav>
+    </header>
+
+    <main>
+        {# ↓このブロックの中に、各ページ固有の内容が挿入されます↓ #}
+        {% block content %}
+        {% endblock %}
+        {# ↑このブロックの中に、各ページ固有の内容が挿入されます↑ #}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 あなたのサークル名</p>
+    </footer>
+
+</body>
+</html>

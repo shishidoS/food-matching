@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',#アカウント制御アプリロード
     'stores.apps.StoresConfig',#店舗アカウントアプリロード
-    'foods.apps.ProductsConfig',#フード投稿や詳細などアプリロード
+    'foods.apps.FoodsConfig',#フード投稿や詳細などアプリロード
 ]
 
 MIDDLEWARE = [

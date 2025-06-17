@@ -1,0 +1,44 @@
+# .gitignore
+
+### Python / Django ###
+
+# 仮想環境フォルダ (各自のPCにだけあれば良い)
+venv/
+env/
+
+# Pythonが自動生成する一時ファイル
+__pycache__/
+*.py[cod]
+
+# ログファイル
+*.log
+
+# ローカルのテスト用データベース (本番はPostgreSQLを使うので不要)
+db.sqlite3
+db.sqlite3-journal
+
+# 秘密情報を書くファイル (絶対に共有しない)
+.env
+*.env
+
+# ユーザーがアップロードしたファイル置き場 (開発中は共有不要)
+/media/
+
+# `collectstatic`で集められた静的ファイル
+/static_root/
+/staticfiles/
+
+
+### OS / エディタ固有のファイル ###
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/

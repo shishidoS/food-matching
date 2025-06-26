@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1>食材マッチング</h1>
+
+    <!-- 検索ボックス -->
+    <form method="get" action="{% url 'food_list' %}" class="input-group mb-3">
+      <input type="text" name="q" class="form-control" placeholder="検索（カテゴリ・場所・名前など）">
+      <button class="btn btn-success" type="submit">
+        <i class="bi bi-search"></i> <!-- Bootstrapのアイコン（必要なら） -->
+      </button>
+    </form>
+
+    <!-- あなたにおすすめ -->
+    <h5 class="mt-4">あなたにおすすめ</h5>
+    <div class="row">
+      {% for i in "123" %}  {# 仮ループ：3つ分のカードを表示 #}
+      <div class="col-md-12 mb-3">
+        <div class="card">
+          <div class="card-body d-flex">
+            <div class="me-3">
+              <div class="bg-secondary" style="width: 100px; height: 80px;"></div> <!-- 仮画像 -->
+            </div>
+            <div>
+              <h5 class="card-title">廃棄食材01</h5>
+              <p class="card-text">場所：東京　期間：7日間</p>
+              <span class="badge bg-primary">タグ01</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+

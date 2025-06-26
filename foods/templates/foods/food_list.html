@@ -1,6 +1,56 @@
-{% extends 'base.html' %}
+{% extends "index.html" %}
 
 {% block content %}
-    <h1>ここは「出品されている商品一覧」ページです</h1>
-    <p>一般ユーザーが、出品されている商品を検索したり、一覧で眺めたりするメインページになります。</p>
+<div class="container mt-3">
+  <!-- 上部ラベル -->
+  <div class="bg-success text-white p-2 d-flex justify-content-between align-items-center rounded">
+    <strong>「{{ request.GET.q|default:"検索" }}」の検索結果</strong>
+  </div>
+
+  <!-- 検索フォーム -->
+  <form method="get" action="" class="mt-3 d-flex">
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control me-2" placeholder="検索キーワード">
+    <select name="sort" class="form-select me-2">
+      <option value="">並べ替え</option>
+      <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>価格が安い順</option>
+      <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>価格が高い順</option>
+      <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>距離が近い順</option>
+      <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>新着順</option>
+    </select>
+    <button type="submit" class="btn btn-success">検索</button>
+  </form>
+
+  <!-- 結果件数 -->
+  <p class="mt-2 text-muted">{{ foods|length }}件の結果が見つかりました</p>
+
+  <!-- 結果リスト -->
+  <div class="row">
+    {% for food in foods %}
+    <div class="col-12 mb-3">
+      <div class="card">
+        <div class="card-body d-flex">
+          <div class="me-3">
+            <div class="bg-light border" style="width: 100px; height: 80px;"></div>
+          </div>
+          <div>
+            <h5 class="card-title">{{ food.name }}</h5>
+            <p class="card-text">場所：{{ food.area }}　価格：￥{{ food.price }}</p>
+            <span class="badge bg-primary">{{ food.category }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p>該当する食材は見つかりませんでした。</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- 戻るボタン固定表示 -->
+<div class="position-fixed bottom-0 start-0 w-100 bg-success text-center py-2">
+  <a href="{% url 'home' %}" class="text-white text-decoration-none fw-bold">
+    ← ホームへ戻る
+  </a>
+</div>
 {% endblock %}
+

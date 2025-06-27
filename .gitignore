@@ -42,3 +42,7 @@ Thumbs.db
 
 # PyCharm
 .idea/
+
+*.pyc
+
+*zoneidentifier

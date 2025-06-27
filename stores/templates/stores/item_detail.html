@@ -1,0 +1,531 @@
+{% extends 'stores/base.html' %}
+
+{% block title %}{{ item.name }} - 食材詳細 - {{ store_name }}店{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .item-image-container {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .no-image-placeholder {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 4rem;
+    }
+    
+    .status-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+    
+    .status-fresh {
+        background: rgba(40, 167, 69, 0.9);
+    }
+    
+    .status-warning {
+        background: rgba(255, 193, 7, 0.9);
+        color: #212529;
+    }
+    
+    .status-expired {
+        background: rgba(220, 53, 69, 0.9);
+    }
+    
+    .quantity-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(23, 162, 184, 0.9);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .info-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .info-item {
+        padding: 1rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid #e9ecef;
+        margin-bottom: 1rem;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #343a40;
+        margin-top: 0.25rem;
+    }
+    
+    .description-card {
+        background: linear-gradient(135deg, #fff, #f8f9fa);
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .timeline-item {
+        border-left: 3px solid #28a745;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #28a745;
+    }
+    
+    .action-buttons {
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+    }
+    
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .tag-item:hover {
+        transform: scale(1.05);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="detail-container">
+        <!-- パンくずナビ -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'stores:item_list' %}">
+                        <i class="bi bi-house me-1"></i>食材一覧
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">{{ item.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- 左側: 画像と基本情報 -->
+            <div class="col-lg-8">
+                <!-- 食材画像 -->
+                <div class="item-image-container mb-4">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="item-image">
+                    {% else %}
+                        <div class="no-image-placeholder">
+                            <i class="bi bi-image"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- ステータスオーバーレイ -->
+                    {% if is_expired %}
+                        <div class="status-overlay status-expired">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            期限切れ
+                        </div>
+                    {% elif is_warning %}
+                        <div class="status-overlay status-warning">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            期限間近
+                        </div>
+                    {% else %}
+                        <div class="status-overlay status-fresh">
+                            <i class="bi bi-check-circle me-1"></i>
+                            新鮮
+                        </div>
+                    {% endif %}
+                    
+                    <!-- 数量バッジ -->
+                    <div class="quantity-badge">
+                        {{ item.quantity_with_unit }}
+                    </div>
+                </div>
+
+                <!-- 食材名と説明 -->
+                <div class="info-card p-4 mb-4">
+                    <h1 class="display-6 mb-3 text-primary">{{ item.name }}</h1>
+                    
+                    {% if item.description %}
+                        <div class="description-card">
+                            <h6 class="text-muted mb-2">
+                                <i class="bi bi-file-text me-1"></i>
+                                食材の説明
+                            </h6>
+                            <p class="mb-0 lh-lg">{{ item.description|linebreaksbr }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- 詳細情報 -->
+                <div class="info-card p-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        詳細情報
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">使用期限</div>
+                                <div class="info-value {% if is_expired %}text-danger{% elif is_warning %}text-warning{% endif %}">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {{ item.use_date|date:"Y年m月d日" }}
+                                    {% if is_expired %}
+                                        <small class="text-danger">(期限切れ)</small>
+                                    {% elif is_warning %}
+                                        <small class="text-warning">(期限間近)</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">数量・単位</div>
+                                <div class="info-value text-info">
+                                    <i class="bi bi-box me-1"></i>
+                                    {{ item.quantity_with_unit }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- タグ -->
+                    {% if item.tags.all %}
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-2">
+                                <i class="bi bi-tags me-1"></i>
+                                タグ
+                            </h6>
+                            <div class="tag-cloud">
+                                {% for tag in item.tags.all %}
+                                    <a href="{% url 'stores:item_list' %}?tag={{ tag.id }}" 
+                                       class="tag-item"
+                                       style="background-color: {{ tag.color }};">
+                                        {{ tag.name }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- 統計情報 -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ item.created_at|timesince }}</div>
+                            <div class="stat-label">登録からの経過</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">{{ item.use_date|timeuntil }}</div>
+                            <div class="stat-label">期限まで</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">{{ item.tags.all|length }}</div>
+                            <div class="stat-label">タグ数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側: アクションと履歴 -->
+            <div class="col-lg-4">
+                <!-- アクションボタン -->
+                <div class="action-buttons">
+                    <div class="info-card p-3 mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-gear me-1"></i>
+                            アクション
+                        </h6>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'stores:item_edit' item.id %}" class="btn btn-warning">
+                                <i class="bi bi-pencil-square me-2"></i>
+                                編集
+                            </a>
+                            
+                            <a href="{% url 'stores:item_delete' item.id %}" class="btn btn-outline-danger">
+                                <i class="bi bi-trash me-2"></i>
+                                削除
+                            </a>
+                            
+                            <hr class="my-2">
+                            
+                            <a href="{% url 'stores:item_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                一覧に戻る
+                            </a>
+                            
+                            <a href="{% url 'stores:item_post' %}" class="btn btn-outline-success">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                新規登録
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 登録情報 -->
+                    <div class="info-card p-3 mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-clock-history me-1"></i>
+                            登録情報
+                        </h6>
+                        
+                        <div class="timeline-item">
+                            <div class="fw-bold text-success">登録</div>
+                            <div class="text-muted small">
+                                {{ item.created_at|date:"Y年m月d日 H:i" }}
+                            </div>
+                        </div>
+                        
+                        {% if item.updated_at != item.created_at %}
+                            <div class="timeline-item">
+                                <div class="fw-bold text-info">最終更新</div>
+                                <div class="text-muted small">
+                                    {{ item.updated_at|date:"Y年m月d日 H:i" }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-3 p-2 bg-light rounded">
+                            <small class="text-muted">
+                                <i class="bi bi-shop me-1"></i>
+                                {{ store_name }}店で管理
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- クイック操作 -->
+                    <div class="info-card p-3">
+                        <h6 class="mb-3">
+                            <i class="bi bi-lightning me-1"></i>
+                            クイック操作
+                        </h6>
+                        
+                        <div class="d-grid gap-1">
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ item.name }}')">
+                                <i class="bi bi-clipboard me-1"></i>
+                                食材名をコピー
+                            </button>
+                            
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ item.quantity_with_unit }}')">
+                                <i class="bi bi-clipboard me-1"></i>
+                                数量をコピー
+                            </button>
+                            
+                            {% if item.description %}
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ item.description|slice:":100" }}')">
+                                    <i class="bi bi-clipboard me-1"></i>
+                                    説明をコピー
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // スムーズスクロール
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // 画像の拡大表示
+    const itemImage = document.querySelector('.item-image');
+    if (itemImage) {
+        itemImage.addEventListener('click', function() {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ item.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${this.src}" class="img-fluid" alt="{{ item.name }}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+            
+            modal.addEventListener('hidden.bs.modal', function() {
+                modal.remove();
+            });
+        });
+        
+        itemImage.style.cursor = 'pointer';
+        itemImage.title = 'クリックで拡大表示';
+    }
+    
+    // キーボードショートカット
+    document.addEventListener('keydown', function(e) {
+        // E: 編集
+        if (e.key === 'e' || e.key === 'E') {
+            window.location.href = '{% url "stores:item_edit" item.id %}';
+        }
+        
+        // Backspace: 一覧に戻る
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            window.location.href = '{% url "stores:item_list" %}';
+        }
+        
+        // Delete: 削除
+        if (e.key === 'Delete') {
+            if (confirm('この食材を削除しますか？')) {
+                window.location.href = '{% url "stores:item_delete" item.id %}';
+            }
+        }
+    });
+});
+
+// クリップボードにコピー
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // 成功時のフィードバック
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-2"></i>
+                    クリップボードにコピーしました
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        const bootstrapToast = new bootstrap.Toast(toast);
+        bootstrapToast.show();
+        
+        toast.addEventListener('hidden.bs.toast', function() {
+            toast.remove();
+        });
+    }).catch(function(err) {
+        console.error('Failed to copy: ', err);
+        alert('コピーに失敗しました');
+    });
+}
+</script>
+{% endblock %}

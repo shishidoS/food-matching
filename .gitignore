@@ -6,9 +6,12 @@
 venv/
 env/
 
-# Pythonが自動生成する一時ファイル
+# Pythonキャッシュファイル
 __pycache__/
-*.py[cod]
+*.pyc
+
+# SQLiteデータベース（必要に応じて無視）
+db.sqlite3
 
 # ログファイル
 *.log

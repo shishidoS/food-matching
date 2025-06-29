@@ -24,18 +24,12 @@ class ItemPostForm(forms.ModelForm):
         help_text='複数のタグはカンマ(,)で区切って入力してください'
     )
     
-    # 新しいタグの色を指定するフィールド
-    new_tags_color = forms.CharField(
-        max_length=7,
+    # 新しいタグの色情報を保存するhiddenフィールド
+    new_tags_colors = forms.CharField(
+        max_length=1000,
         required=False,
-        initial='#28a745',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'type': 'color',
-            'title': '新しいタグの色を選択してください'
-        }),
-        label='新しいタグの色',
-        help_text='上で作成する新しいタグの色を選択してください'
+        widget=forms.HiddenInput(),
+        help_text='タグと色の対応情報をJSON形式で保存'
     )
 
     class Meta:
@@ -97,6 +91,8 @@ class ItemPostForm(forms.ModelForm):
         return quantity
 
     def save(self, commit=True):
+        import json
+        
         instance = super().save(commit=False)
         
         if commit:
@@ -107,18 +103,30 @@ class ItemPostForm(forms.ModelForm):
             
             # 新しいタグの処理
             new_tags_str = self.cleaned_data.get('new_tags', '')
-            new_tags_color = self.cleaned_data.get('new_tags_color', '#28a745')
+            new_tags_colors_str = self.cleaned_data.get('new_tags_colors', '')
             
             if new_tags_str:
                 new_tag_names = [tag.strip() for tag in new_tags_str.split(',') if tag.strip()]
+                
+                # 色情報をJSONから取得
+                tag_colors = {}
+                if new_tags_colors_str:
+                    try:
+                        tag_colors = json.loads(new_tags_colors_str)
+                    except json.JSONDecodeError:
+                        tag_colors = {}
+                
                 for tag_name in new_tag_names:
+                    # 個別の色を取得（デフォルトは#28a745）
+                    tag_color = tag_colors.get(tag_name, '#28a745')
+                    
                     # タグの重複チェックと作成（色も指定）
                     tag, created = PostTags.objects.get_or_create(
                         name=tag_name,
-                        defaults={'color': new_tags_color}
+                        defaults={'color': tag_color}
                     )
                     if created:
-                        print(f"新しいタグを作成しました: {tag_name} (色: {new_tags_color})")  # デバッグ用
+                        print(f"新しいタグを作成しました: {tag_name} (色: {tag_color})")  # デバッグ用
                     # 食材にタグを追加
                     instance.tags.add(tag)
         

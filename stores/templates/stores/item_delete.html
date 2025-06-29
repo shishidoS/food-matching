@@ -1,0 +1,290 @@
+{% extends 'stores/base.html' %}
+
+{% block title %}食材削除 - {{ item.name }} - {{ store_name }}店{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .delete-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(220, 53, 69, 0.1);
+        overflow: hidden;
+    }
+    
+    .delete-header {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        padding: 1.5rem;
+    }
+    
+    .delete-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+    
+    .item-preview {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .item-image-preview {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .no-image-preview {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, #e9ecef, #f8f9fa);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 2rem;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .item-info {
+        flex: 1;
+    }
+    
+    .item-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    
+    .item-detail {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        color: #6c757d;
+    }
+    
+    .item-detail i {
+        margin-right: 0.5rem;
+        width: 16px;
+    }
+    
+    .warning-box {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .warning-title {
+        font-weight: bold;
+        color: #856404;
+        margin-bottom: 0.5rem;
+    }
+    
+    .tag-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .tag-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 12px 30px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #c82333, #bd2130);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 12px 30px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="delete-container">
+        <!-- パンくずナビ -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'stores:item_list' %}">
+                        <i class="bi bi-house me-1"></i>食材一覧
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'stores:item_detail' item.id %}">{{ item.name }}</a>
+                </li>
+                <li class="breadcrumb-item active">削除</li>
+            </ol>
+        </nav>
+
+        <div class="delete-card">
+            <!-- ヘッダー -->
+            <div class="delete-header text-center">
+                <i class="bi bi-exclamation-triangle delete-icon"></i>
+                <h4 class="mb-0">食材を削除しますか？</h4>
+                <p class="mb-0 mt-2 opacity-75">この操作は取り消すことができません</p>
+            </div>
+            
+            <!-- 削除対象の食材情報 -->
+            <div class="card-body">
+                <div class="item-preview">
+                    <div class="d-flex align-items-start gap-3">
+                        <!-- 食材画像 -->
+                        <div class="flex-shrink-0">
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="item-image-preview">
+                            {% else %}
+                                <div class="no-image-preview">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- 食材情報 -->
+                        <div class="item-info">
+                            <div class="item-name">{{ item.name }}</div>
+                            
+                            <div class="item-detail">
+                                <i class="bi bi-calendar3"></i>
+                                使用期限: {{ item.use_date|date:"Y年m月d日" }}
+                            </div>
+                            
+                            <div class="item-detail">
+                                <i class="bi bi-box"></i>
+                                数量: {{ item.quantity_with_unit }}
+                            </div>
+                            
+                            {% if item.description %}
+                                <div class="item-detail">
+                                    <i class="bi bi-card-text"></i>
+                                    説明: {{ item.description|truncatechars:100 }}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="item-detail">
+                                <i class="bi bi-clock"></i>
+                                登録日: {{ item.created_at|date:"Y年m月d日 H:i" }}
+                            </div>
+                            
+                            <!-- タグ表示 -->
+                            {% if item.tags.all %}
+                                <div class="item-detail">
+                                    <i class="bi bi-tags"></i>
+                                    タグ:
+                                </div>
+                                <div class="tag-display">
+                                    {% for tag in item.tags.all %}
+                                        <span class="tag-badge" style="background-color: {{ tag.color }};">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 警告メッセージ -->
+                <div class="warning-box">
+                    <div class="warning-title">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        削除の確認
+                    </div>
+                    <p class="mb-0">
+                        上記の食材「<strong>{{ item.name }}</strong>」を完全に削除します。<br>
+                        削除した食材の情報は復元できません。本当に削除してもよろしいですか？
+                    </p>
+                </div>
+                
+                <!-- アクションボタン -->
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{% url 'stores:item_detail' item.id %}" class="btn btn-cancel">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        キャンセル
+                    </a>
+                    
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('本当に削除してもよろしいですか？')">
+                            <i class="bi bi-trash me-2"></i>
+                            削除する
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 削除ボタンのダブルクリック防止
+    const deleteForm = document.querySelector('form');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function() {
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>削除中...';
+        });
+    }
+    
+    // Escキーでキャンセル
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.location.href = "{% url 'stores:item_detail' item.id %}";
+        }
+    });
+});
+</script>
+{% endblock %}

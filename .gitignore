@@ -6,14 +6,14 @@
 venv/
 env/
 
-# Pythonが自動生成する一時ファイル
-__pycache__/
+# Pythonが自動生成する一時ファイル（すべての階層・ディレクトリ）
+**/__pycache__/
 *.py[cod]
 
 # ログファイル
 *.log
 
-# ローカルのテスト用データベース (本番はPostgreSQLを使うので不要)
+
 db.sqlite3
 db.sqlite3-journal
 
@@ -42,3 +42,7 @@ Thumbs.db
 
 # PyCharm
 .idea/
+
+*.pyc
+
+*zoneidentifier

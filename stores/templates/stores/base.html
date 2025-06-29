@@ -153,12 +153,6 @@
                     {% comment %}
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" href="{% url 'stores:dashboard' %}">
-                                <i class="bi bi-speedometer2 me-1"></i>
-                                ダッシュボード
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link{% if request.resolver_match.url_name == 'item_list' %} active{% endif %}" href="{% url 'stores:item_list' %}">
                                 <i class="bi bi-list-ul me-1"></i>
                                 食材一覧
@@ -208,9 +202,6 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'stores:dashboard' %}">
-                                    <i class="bi bi-speedometer2 me-2"></i>ダッシュボード
-                                </a></li>
                                 <li><a class="dropdown-item" href="{% url 'admin:auth_user_change' user.id %}">
                                     <i class="bi bi-person-gear me-2"></i>アカウント設定
                                 </a></li>

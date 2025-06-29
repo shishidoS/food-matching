@@ -7,8 +7,6 @@ urlpatterns = [
     # メインエントリーポイント
     path('', views.store_redirect, name='store_redirect'),
     
-    # ダッシュボード
-    path('dashboard/', views.dashboard, name='dashboard'),
     
     # 食材関連
     path('items/', views.item_list, name='item_list'),

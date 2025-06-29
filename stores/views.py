@@ -191,7 +191,7 @@ def item_delete(request, item_id):
         'store_name': 'デモ店舗',  # アカウント機能無効化中は固定値
         # 'store_name': request.user.username,  # アカウント機能有効時
     }
-    return render(request, 'item_delete.html', context)
+    return render(request, 'stores/item_delete.html', context)
 
 # @login_required  # アカウント機能無効化中はコメントアウト
 def tag_create_ajax(request):
@@ -214,39 +214,3 @@ def tag_create_ajax(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-# @login_required  # アカウント機能無効化中はコメントアウト
-def dashboard(request):
-    """ダッシュボード（概要ページ）"""
-    # 統計情報の取得（アカウント機能無効化中：全ての食材対象）
-    total_items = PostFood.objects.filter(is_active=True).count()
-    # アカウント機能有効時
-    # total_items = PostFood.objects.filter(store_account=request.user, is_active=True).count()
-    
-    today = date.today()
-    expired_items = PostFood.objects.filter(
-        # store_account=request.user,  # アカウント機能有効時
-        is_active=True,
-        use_date__lt=today
-    ).count()
-    
-    warning_items = PostFood.objects.filter(
-        # store_account=request.user,  # アカウント機能有効時
-        is_active=True,
-        use_date__gte=today,
-        use_date__lte=today + timedelta(days=3)
-    ).count()
-    
-    recent_items = PostFood.objects.filter(
-        # store_account=request.user,  # アカウント機能有効時
-        is_active=True
-    ).order_by('-created_at')[:5]
-    
-    context = {
-        'total_items': total_items,
-        'expired_items': expired_items,
-        'warning_items': warning_items,
-        'recent_items': recent_items,
-        'store_name': 'デモ店舗',  # アカウント機能無効化中は固定値
-        # 'store_name': request.user.username,  # アカウント機能有効時
-    }
-    return render(request, 'stores/dashboard.html', context)

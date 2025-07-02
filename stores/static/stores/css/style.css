@@ -1,0 +1,542 @@
+/* 食材管理システム専用スタイル */
+
+/* カスタム変数 */
+:root {
+    --primary-green: #28a745;
+    --success-green: #20c997;
+    --warning-yellow: #ffc107;
+    --danger-red: #dc3545;
+    --info-blue: #17a2b8;
+    --light-bg: #f8f9fa;
+    --dark-text: #343a40;
+    --muted-text: #6c757d;
+    --border-color: #e9ecef;
+    --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+    --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+/* 全体設定 */
+body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+    line-height: 1.6;
+}
+
+/* カード共通スタイル */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+/* ボタンスタイル */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: var(--transition);
+    border-width: 2px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--primary-green), var(--success-green));
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning-yellow), #fd7e14);
+    border: none;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #e0a800, #e8600e);
+    color: #212529;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-red), #c82333);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #bd2130, #a71e2a);
+}
+
+/* フォーム要素 */
+.form-control, .form-select {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+/* タグ関連スタイル */
+.tag-badge {
+    display: inline-block;
+    padding: 0.4em 0.8em;
+    font-size: 0.8em;
+    border-radius: 20px;
+    text-decoration: none;
+    color: white;
+    margin: 0.2em;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.tag-badge:hover {
+    transform: scale(1.05);
+    color: white;
+    text-decoration: none;
+}
+
+.tag-selection-area {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+/* 画像関連 */
+.image-upload-area {
+    border: 3px dashed var(--primary-green);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.image-upload-area:hover {
+    background: linear-gradient(135deg, #e8f5e8, #d4edda);
+    border-color: var(--success-green);
+}
+
+.image-upload-area input[type="file"] {
+    cursor: pointer;
+}
+
+/* アラート・メッセージ */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d1f2d1, #c3e6cb);
+    border-left-color: var(--primary-green);
+    color: #155724;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border-left-color: var(--warning-yellow);
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    border-left-color: var(--danger-red);
+    color: #721c24;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+    border-left-color: var(--info-blue);
+    color: #0c5460;
+}
+
+/* 食材カード */
+.item-card {
+    border: none;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+    height: 100%;
+}
+
+.item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.item-image {
+    height: 200px;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.item-card:hover .item-image {
+    transform: scale(1.05);
+}
+
+.no-image-placeholder {
+    height: 200px;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-text);
+    font-size: 3rem;
+}
+
+/* 数量バッジ */
+.quantity-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+}
+
+.quantity-display {
+    font-weight: bold;
+    color: var(--primary-green);
+    font-size: 1.1em;
+}
+
+/* 期限アラート */
+.expired-item, .expired-overlay {
+    position: relative;
+}
+
+.expired-overlay, .warning-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+}
+
+.expired-overlay {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.warning-overlay {
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.expired-badge {
+    background: var(--danger-red);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.warning-badge {
+    background: var(--warning-yellow);
+    color: #212529;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* ナビゲーション */
+.navbar {
+    box-shadow: var(--shadow-light);
+    backdrop-filter: blur(10px);
+}
+
+.navbar-nav .nav-link.active {
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* フッター */
+.footer {
+    background: linear-gradient(135deg, var(--dark-text), #495057);
+    color: white;
+    margin-top: auto;
+}
+
+/* 検索・フィルタエリア */
+.search-container {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+}
+
+/* 統計カード */
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.stats-number {
+    font-size: 3rem;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.stats-icon {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 2.5rem;
+    opacity: 0.3;
+}
+
+/* アニメーション */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* ローディング */
+.loading-spinner {
+    display: none;
+}
+
+.loading .loading-spinner {
+    display: inline-block;
+}
+
+/* モーダル */
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-heavy);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-green), var(--success-green));
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* ツールチップ */
+.tooltip-inner {
+    background: var(--dark-text);
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+/* プログレスバー */
+.progress {
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* テーブル */
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, var(--primary-green), var(--success-green));
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+/* バッジ */
+.badge {
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.8em;
+}
+
+/* リスト */
+.list-group-item {
+    border: none;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+}
+
+.list-group-item:hover {
+    background: var(--light-bg);
+    transform: translateX(5px);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .stats-number {
+        font-size: 2rem;
+    }
+    
+    .stats-icon {
+        font-size: 1.5rem;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .item-card:hover {
+        transform: none;
+    }
+    
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .container-fluid {
+        padding: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-6 {
+        font-size: 1.5rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+    
+    .stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .tag-badge {
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+    }
+}
+
+/* 印刷スタイル */
+@media print {
+    .navbar, .footer, .btn, .alert {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .container-fluid {
+        max-width: 100% !important;
+    }
+}
+
+/* ダークモード対応（将来的な拡張） */
+@media (prefers-color-scheme: dark) {
+    /* ダークモードの設定は将来的に実装 */
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--muted-text);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-green);
+}
+
+/* フォーカス表示の改善 */
+*:focus {
+    outline: 2px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+.btn:focus, .form-control:focus, .form-select:focus {
+    outline: none;
+}
+
+/* 選択テキストのスタイル */
+::selection {
+    background: rgba(40, 167, 69, 0.3);
+    color: var(--dark-text);
+}

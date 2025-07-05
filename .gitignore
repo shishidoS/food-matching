@@ -7,8 +7,12 @@ venv/
 env/
 
 # Pythonが自動生成する一時ファイル（すべての階層・ディレクトリ）
+__pycache__/
 **/__pycache__/
 *.py[cod]
+*.pyc
+*.pyo
+*.pyd
 
 # ログファイル
 *.log
@@ -42,7 +46,5 @@ Thumbs.db
 
 # PyCharm
 .idea/
-
-*.pyc
 
 *zoneidentifier

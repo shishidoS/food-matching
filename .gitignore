@@ -14,6 +14,7 @@ __pycache__/
 *.pyo
 *.pyd
 
+
 # ログファイル
 *.log
 
@@ -48,3 +49,9 @@ Thumbs.db
 .idea/
 
 *zoneidentifier
+
+# 開発者用マークダウンファイルを除外
+# これらのファイルは、開発者がローカルでのみ使用
+*md
+# READMEは退避
+!README.md

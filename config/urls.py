@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('stores/', include('stores.urls')),
+    path('foods/', include('foods.urls')),
 ]
 
 # Development only: serve media files

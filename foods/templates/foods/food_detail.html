@@ -1,6 +1,527 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ food.name }} - 食材詳細{% endblock %}
+
+{% block extra_css %}
+<style>
+    .food-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+    .no-image-placeholder {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 3rem;
+        border-radius: 12px;
+    }
+    .status-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        color: white;
+    }
+    .status-fresh { background: rgba(40, 167, 69, 0.9); }
+    .status-warning { background: rgba(255, 193, 7, 0.9); color: #212529; }
+    .status-expired { background: rgba(220, 53, 69, 0.9); }
+    .quantity-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(23, 162, 184, 0.9);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+    }
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+    }
+    .review-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+    
+    .like-button {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .like-button:not(.liked) {
+        color: #6c757d;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+    }
+    
+    .like-button:not(.liked):hover {
+        color: #dc3545;
+        background: #fff5f5;
+        border-color: #dc3545;
+        transform: scale(1.05);
+    }
+    
+    .like-button.liked {
+        color: white;
+        background: #dc3545;
+        border: 2px solid #dc3545;
+        animation: likeAnimation 0.4s ease;
+    }
+    
+    .like-button.liked:hover {
+        background: #c82333;
+        border-color: #c82333;
+        transform: scale(1.05);
+    }
+    
+    @keyframes likeAnimation {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .like-count {
+        font-weight: 600;
+        min-width: 1.5rem;
+        text-align: center;
+    }
+    
+    .pulse {
+        animation: pulse 0.3s ease;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h1>ここは「商品の詳細」ページです</h1>
-    <p>特定の一つの商品の詳しい情報（価格、お店の場所、残り時間など）を表示します。</p>
+<div class="container mt-4">
+    <!-- パンくずナビ -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'foods:food_list' %}">
+                    <i class="bi bi-house me-1"></i>食材一覧
+                </a>
+            </li>
+            <li class="breadcrumb-item active">{{ food.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- 左側: 食材情報 -->
+        <div class="col-lg-8">
+            <!-- 食材画像 -->
+            <div class="position-relative mb-4">
+                {% if food.image %}
+                    <img src="{{ food.image.url }}" alt="{{ food.name }}" class="food-image">
+                {% else %}
+                    <div class="no-image-placeholder">
+                        <i class="bi bi-image"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- ステータスバッジ -->
+                {% if is_expired %}
+                    <div class="status-badge status-expired">
+                        <i class="bi bi-exclamation-triangle me-1"></i>期限切れ
+                    </div>
+                {% elif is_warning %}
+                    <div class="status-badge status-warning">
+                        <i class="bi bi-exclamation-circle me-1"></i>期限間近
+                    </div>
+                {% else %}
+                    <div class="status-badge status-fresh">
+                        <i class="bi bi-check-circle me-1"></i>新鮮
+                    </div>
+                {% endif %}
+                
+                <!-- 数量バッジ -->
+                <div class="quantity-badge">
+                    {{ food.quantity_with_unit }}
+                </div>
+            </div>
+
+            <!-- 食材情報 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="card-title text-primary">{{ food.name }}</h1>
+                    
+                    {% if food.description %}
+                        <div class="mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-file-text me-1"></i>説明
+                            </h6>
+                            <p>{{ food.description|linebreaksbr }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6 class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>使用期限
+                                </h6>
+                                <p class="{% if is_expired %}text-danger{% elif is_warning %}text-warning{% endif %}">
+                                    {{ food.use_date|date:"Y年m月d日" }}
+                                    {% if is_expired %}
+                                        <small class="text-danger">(期限切れ)</small>
+                                    {% elif is_warning %}
+                                        <small class="text-warning">(期限間近)</small>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6 class="text-muted">
+                                    <i class="bi bi-box me-1"></i>数量・単位
+                                </h6>
+                                <p class="text-info">{{ food.quantity_with_unit }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- タグ -->
+                    {% if food.tags.all %}
+                        <div class="mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-tags me-1"></i>タグ
+                            </h6>
+                            {% for tag in food.tags.all %}
+                                <span class="tag-item" style="background-color: {{ tag.color }};">
+                                    {{ tag.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- 店舗情報 -->
+                    <div class="mb-3">
+                        <h6 class="text-muted">
+                            <i class="bi bi-shop me-1"></i>投稿店舗
+                        </h6>
+                        <p>{{ food.store_account.username }}店</p>
+                    </div>
+
+                    <!-- 登録日時 -->
+                    <div class="mb-3">
+                        <h6 class="text-muted">
+                            <i class="bi bi-clock me-1"></i>登録日時
+                        </h6>
+                        <p>{{ food.created_at|date:"Y年m月d日 H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側: レビュー機能 -->
+        <div class="col-lg-4">
+            <!-- いいねボタン -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <button id="like-button" class="like-button" onclick="toggleLike()">
+                        <i class="bi bi-heart-fill" id="like-icon"></i>
+                        <span class="like-count" id="like-count">-</span>
+                    </button>
+                    <div class="mt-2 text-muted small">この食材にいいね！</div>
+                </div>
+            </div>
+
+            <!-- レビュー統計 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-1"></i>レビュー統計
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="stat-number" id="total-reviews">-</div>
+                        <div class="stat-label">レビュー数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- レビュー投稿フォーム -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil me-1"></i>レビューを投稿
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="review-form">
+                        <div class="mb-3">
+                            <label for="review-comment" class="form-label">コメント</label>
+                            <textarea id="review-comment" class="form-control" 
+                                      rows="3" placeholder="この食材についてのコメントを投稿してください..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="submitReview()">
+                            <i class="bi bi-send me-1"></i>レビューを投稿
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- レビュー一覧 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-1"></i>レビュー一覧
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="reviews-list">
+                        <div class="text-muted text-center">
+                            読み込み中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // レビュー機能のJavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        loadReviewStats();
+        loadReviews();
+        loadLikeStatus();
+    });
+
+    function loadReviewStats() {
+        fetch(`/foods/reviews/{{ food.id }}/stats/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('total-reviews').textContent = data.stats.total_reviews;
+                }
+            })
+            .catch(error => {
+                console.error('レビュー統計の取得に失敗しました:', error);
+            });
+    }
+
+    function loadLikeStatus() {
+        fetch(`/foods/like/{{ food.id }}/status/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateLikeButton(data.is_liked, data.total_likes);
+                }
+            })
+            .catch(error => {
+                console.error('いいね状態の取得に失敗しました:', error);
+            });
+    }
+
+    function loadReviews() {
+        fetch(`/foods/reviews/{{ food.id }}/list/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayReviews(data.reviews);
+                    
+                    // 既にレビューを投稿している場合はフォームを非表示にする
+                    if (data.reviews.length > 0) {
+                        const reviewForm = document.getElementById('review-form');
+                        reviewForm.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle me-1"></i>レビューは投稿済みです。</div>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('レビューの取得に失敗しました:', error);
+            });
+    }
+
+    function displayReviews(reviews) {
+        const reviewsList = document.getElementById('reviews-list');
+        
+        if (reviews.length === 0) {
+            reviewsList.innerHTML = '<div class="text-muted text-center">まだレビューがありません</div>';
+            return;
+        }
+        
+        const reviewsHtml = reviews.map(review => `
+            <div class="review-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <strong class="text-primary">${review.reviewer_name}</strong>
+                    <small class="text-muted">${review.created_at}</small>
+                </div>
+                ${review.comment ? `<p class="mb-1">${review.comment}</p>` : ''}
+            </div>
+        `).join('');
+        
+        reviewsList.innerHTML = reviewsHtml;
+    }
+
+    function submitReview() {
+        const comment = document.getElementById('review-comment').value.trim();
+        
+        if (!comment) {
+            alert('コメントを入力してください。');
+            return;
+        }
+        
+        const reviewData = {
+            comment: comment
+        };
+        
+        fetch(`/foods/reviews/{{ food.id }}/post/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(reviewData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('レビューを投稿しました', 'success');
+                document.getElementById('review-comment').value = '';
+                loadReviewStats();
+                loadReviews();
+            } else {
+                showToast(data.error || 'レビューの投稿に失敗しました', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('レビューの投稿に失敗しました:', error);
+            showToast('レビューの投稿に失敗しました', 'error');
+        });
+    }
+
+    function toggleLike() {
+        const likeButton = document.getElementById('like-button');
+        const likeCount = document.getElementById('like-count');
+        
+        // ボタンを一時的に無効化
+        likeButton.disabled = true;
+        
+        fetch(`/foods/like/{{ food.id }}/toggle/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateLikeButton(data.is_liked, data.total_likes);
+                showToast(data.message, 'success');
+                
+                // パルスアニメーション
+                likeCount.classList.add('pulse');
+                setTimeout(() => {
+                    likeCount.classList.remove('pulse');
+                }, 300);
+            } else {
+                showToast(data.error || 'いいねの処理に失敗しました', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('いいねの処理に失敗しました:', error);
+            showToast('いいねの処理に失敗しました', 'error');
+        })
+        .finally(() => {
+            likeButton.disabled = false;
+        });
+    }
+
+    function updateLikeButton(isLiked, totalLikes) {
+        const likeButton = document.getElementById('like-button');
+        const likeIcon = document.getElementById('like-icon');
+        const likeCount = document.getElementById('like-count');
+        
+        likeCount.textContent = totalLikes;
+        
+        if (isLiked) {
+            likeButton.classList.add('liked');
+            likeIcon.className = 'bi bi-heart-fill';
+        } else {
+            likeButton.classList.remove('liked');
+            likeIcon.className = 'bi bi-heart';
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showToast(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const toast = document.createElement('div');
+        toast.className = `alert ${alertClass} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+</script>
 {% endblock %}

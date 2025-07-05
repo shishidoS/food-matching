@@ -3,28 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>フードシェアリングアプリ</title>
-    {# ここに共通のCSSなどを読み込む #}
+    <title>食材マッチングアプリ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5rem 0;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+    </style>
 </head>
 <body>
+    <!-- ナビゲーション -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-apple me-2"></i>食材マッチング
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'foods:food_list' %}">
+                            <i class="bi bi-search me-1"></i>食材を探す
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stores/">
+                            <i class="bi bi-shop me-1"></i>店舗ページ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <header>
-        <h1><a href="/">フードシェアリングアプリ</a></h1>
-        <nav>
-            {# ここに共通のナビゲーションメニューなどを置く #}
-        </nav>
-    </header>
+    <!-- ヒーローセクション -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">食材マッチングアプリ</h1>
+            <p class="lead mb-5">食品ロスを減らし、お得に美味しい食材を見つけよう</p>
+            <div class="row justify-content-center">
+                <div class="col-auto me-3">
+                    <a href="{% url 'foods:food_list' %}" class="btn btn-light btn-lg btn-custom text-white">
+                        <i class="bi bi-search me-2"></i>食材を探す
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="/stores/" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-shop me-2"></i>店舗として参加
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <main>
-        {# ↓このブロックの中に、各ページ固有の内容が挿入されます↓ #}
-        {% block content %}
-        {% endblock %}
-        {# ↑このブロックの中に、各ページ固有の内容が挿入されます↑ #}
-    </main>
+    <!-- 機能紹介 -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="fw-bold">主な機能</h2>
+                    <p class="text-muted">持続可能な食材利用を支援します</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-search display-4 text-primary mb-3"></i>
+                            <h4>食材検索</h4>
+                            <p class="text-muted">期限が近い食材をお得に購入できます。検索機能で欲しい食材を簡単に見つけられます。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-star display-4 text-warning mb-3"></i>
+                            <h4>レビュー機能</h4>
+                            <p class="text-muted">実際に購入した食材のレビューを投稿・閲覧できます。いいね機能で良い食材を共有。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-recycle display-4 text-success mb-3"></i>
+                            <h4>食品ロス削減</h4>
+                            <p class="text-muted">店舗が余剰食材を投稿し、消費者が購入することで食品ロスを削減します。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <footer>
-        <p>&copy; 2025 あなたのサークル名</p>
+    <!-- フッター -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 食材マッチングアプリ</p>
+        </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,6 +1,413 @@
 {% extends 'base.html' %}
 
+{% block title %}食材一覧 - フードシェアリングアプリ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .item-card {
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .item-image {
+        height: 200px;
+        object-fit: cover;
+        background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    }
+    
+    .no-image-placeholder {
+        height: 200px;
+        background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 3rem;
+    }
+    
+    .quantity-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(40, 167, 69, 0.9);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+    
+    .price-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+    
+    .expired-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(220, 53, 69, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .expired-badge {
+        background: #dc3545;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .warning-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 193, 7, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .warning-badge {
+        background: #ffc107;
+        color: #212529;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        color: white;
+    }
+    
+    .stats-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+    
+    .like-section {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .like-count {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .review-count {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .store-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <h1>ここは「出品されている商品一覧」ページです</h1>
-    <p>一般ユーザーが、出品されている商品を検索したり、一覧で眺めたりするメインページになります。</p>
+<div class="container-fluid">
+    <!-- ページヘッダー -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-basket2 me-2"></i>
+                食材一覧
+            </h2>
+            <p class="text-muted mb-0">出品されている食材を探してみましょう</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-success">
+                <i class="bi bi-funnel me-1"></i>
+                並び替え
+            </button>
+        </div>
+    </div>
+
+    <!-- 検索・フィルタエリア -->
+    <div class="search-container p-4 mb-4">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="query" class="form-label">検索キーワード</label>
+                <input type="text" class="form-control" id="query" name="query" 
+                       placeholder="食材名で検索..." value="{{ query|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="tag" class="form-label">カテゴリー</label>
+                <select class="form-select" id="tag" name="tag">
+                    <option value="">すべて</option>
+                    {% for tag in all_tags %}
+                        <option value="{{ tag.id }}" {% if tag.id|stringformat:"s" == selected_tag %}selected{% endif %}>
+                            {{ tag.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i>検索
+                </button>
+                <a href="{% url 'foods:food_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>クリア
+                </a>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="form-text">
+                    {{ foods|length }}件中表示
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 食材一覧 -->
+    {% if foods %}
+        <div class="row">
+            {% for item in foods %}
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="card item-card h-100">
+                        <div class="position-relative">
+                            <!-- 食材画像 -->
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" class="card-img-top item-image" alt="{{ item.name }}">
+                            {% else %}
+                                <div class="no-image-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- 価格バッジ -->
+                            {% if item.price %}
+                                <div class="price-badge">
+                                    ¥{{ item.price }}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- 数量バッジ -->
+                            <div class="quantity-badge">
+                                {{ item.quantity_with_unit }}
+                            </div>
+                            
+                            <!-- 期限切れ・期限間近オーバーレイ -->
+                            {% if item.use_date < today %}
+                                <div class="expired-overlay">
+                                    <div class="expired-badge">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        期限切れ
+                                    </div>
+                                </div>
+                            {% elif item.use_date <= warning_date %}
+                                <div class="warning-overlay">
+                                    <div class="warning-badge">
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        期限間近
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <!-- 食材名 -->
+                            <h6 class="card-title mb-2">{{ item.name }}</h6>
+                            
+                            <!-- 店舗情報 -->
+                            <div class="store-info mb-2">
+                                <i class="bi bi-shop me-1"></i>
+                                {{ item.store_account.username }}店
+                            </div>
+                            
+                            <!-- 説明 -->
+                            {% if item.description %}
+                                <p class="card-text text-muted small mb-2">
+                                    {{ item.description|truncatechars:50 }}
+                                </p>
+                            {% endif %}
+                            
+                            <!-- いいね数・レビュー数 -->
+                            <div class="like-section">
+                                <i class="bi bi-heart-fill like-count"></i>
+                                <span class="like-count">{{ item.like_count }}</span>
+                                <span class="text-muted small">いいね</span>
+                                <span class="text-muted mx-2">•</span>
+                                <i class="bi bi-chat-dots text-muted"></i>
+                                <span class="review-count">{{ item.review_count }}件のレビュー</span>
+                            </div>
+                            
+                            <!-- 使用期限 -->
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    使用期限: 
+                                    <span class="{% if item.use_date < today %}text-danger{% elif item.use_date <= warning_date %}text-warning{% endif %}">
+                                        {{ item.use_date|date:"m/d" }}
+                                    </span>
+                                </small>
+                            </div>
+                            
+                            <!-- タグ -->
+                            {% if item.tags.all %}
+                                <div class="mb-2">
+                                    {% for tag in item.tags.all|slice:":3" %}
+                                        <span class="tag-badge me-1" style="background-color: {{ tag.color }}; font-size: 0.7rem;">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if item.tags.all|length > 3 %}
+                                        <span class="text-muted small">+{{ item.tags.all|length|add:"-3" }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- 登録日時 -->
+                            <div class="mt-auto">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ item.created_at|date:"m/d H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- アクションボタン（閲覧のみ） -->
+                        <div class="card-footer bg-transparent">
+                            <div class="d-grid">
+                                <a href="{% url 'foods:food_detail' item.id %}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="bi bi-eye me-1"></i>
+                                    詳細を見る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- 空状態 -->
+        <div class="empty-state">
+            {% if query or selected_tag %}
+                <!-- 検索結果なし -->
+                <div class="empty-state-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h4>検索条件に一致する食材が見つかりません</h4>
+                <p class="mb-4">検索条件を変更してもう一度お試しください。</p>
+                <a href="{% url 'foods:food_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>すべての食材を表示
+                </a>
+            {% else %}
+                <!-- 食材なし -->
+                <div class="empty-state-icon">
+                    <i class="bi bi-basket2"></i>
+                </div>
+                <h4>まだ食材が出品されていません</h4>
+                <p class="mb-4">出品される食材をお待ちください。</p>
+                <a href="{% url 'foods:food_list' %}" class="btn btn-success btn-lg">
+                    <i class="bi bi-arrow-clockwise me-2"></i>更新する
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // カードのホバーエフェクト強化
+    const itemCards = document.querySelectorAll('.item-card');
+    itemCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+            this.style.boxShadow = '0 12px 30px rgba(0,0,0,0.2)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        });
+    });
+    
+    // 検索フォームの自動送信（デバウンス）
+    const searchInput = document.querySelector('input[name="query"]');
+    if (searchInput) {
+        let timeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                // 自動検索はコメントアウト（必要に応じて有効化）
+                // this.closest('form').submit();
+            }, 500);
+        });
+    }
+    
+    // キーボードショートカット
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+F: 検索フィールドにフォーカス
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            searchInput?.focus();
+        }
+    });
+    
+    // いいねボタンの動作（将来的に実装）
+    const likeButtons = document.querySelectorAll('.like-btn');
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            // TODO: いいね機能の実装
+            console.log('いいね機能は未実装です');
+        });
+    });
+});
+</script>
 {% endblock %}
